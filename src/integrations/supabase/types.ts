@@ -98,6 +98,24 @@ export type Database = {
         }
         Relationships: []
       }
+      doc_counters: {
+        Row: {
+          prefix: string
+          seq: number
+          year: number
+        }
+        Insert: {
+          prefix: string
+          seq?: number
+          year: number
+        }
+        Update: {
+          prefix?: string
+          seq?: number
+          year?: number
+        }
+        Relationships: []
+      }
       inventory_count_items: {
         Row: {
           actual_qty: number | null
@@ -1040,11 +1058,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_count: { Args: { _id: string }; Returns: undefined }
+      approve_issue: { Args: { _id: string }; Returns: undefined }
+      approve_receipt: { Args: { _id: string }; Returns: undefined }
+      approve_transfer: {
+        Args: { _id: string; _notes?: string }
+        Returns: undefined
+      }
       can_access_warehouse: {
         Args: { _user_id: string; _warehouse_id: string }
         Returns: boolean
       }
       can_write: { Args: { _user_id: string }; Returns: boolean }
+      current_balance: {
+        Args: { _product: string; _warehouse: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1053,6 +1082,33 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      log_audit: {
+        Args: {
+          _action: string
+          _entity: string
+          _entity_id: string
+          _reason: string
+          _warehouse_id: string
+        }
+        Returns: undefined
+      }
+      next_doc_no: { Args: { _prefix: string }; Returns: string }
+      notify_admins: {
+        Args: { _body: string; _link: string; _title: string }
+        Returns: undefined
+      }
+      receive_transfer: {
+        Args: { _id: string; _receiver: string; _review?: string }
+        Returns: undefined
+      }
+      reject_transfer: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
+      }
+      ship_transfer: {
+        Args: { _driver: string; _id: string; _sender: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:
