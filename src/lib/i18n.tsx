@@ -165,6 +165,23 @@ const dict = {
   selectProduct: { ar: "اختر صنفًا", en: "Select product" },
   lastMovement: { ar: "آخر حركة", en: "Last movement" },
   never: { ar: "لا توجد حركة", en: "No movement" },
+  newUser: { ar: "مستخدم جديد", en: "New user" },
+  resetPassword: { ar: "تغيير كلمة المرور", en: "Change password" },
+  passwordDigits: { ar: "كلمة المرور (أرقام فقط ٦-١٢ رقم)", en: "Password (digits only, 6-12)" },
+  passwordDigitsError: { ar: "كلمة المرور يجب أن تكون أرقامًا من ٦ إلى ١٢ رقم", en: "Password must be 6-12 digits" },
+  passwordUpdated: { ar: "تم تحديث كلمة المرور", en: "Password updated" },
+  userCreated: { ar: "تم إنشاء المستخدم", en: "User created" },
+  activate: { ar: "تفعيل", en: "Activate" },
+  deactivate: { ar: "إيقاف", en: "Deactivate" },
+  submitForApproval: { ar: "إرسال للاعتماد", en: "Submit" },
+  createDoc: { ar: "إنشاء المستند", en: "Create document" },
+  selectWarehouse: { ar: "اختر المخزن", en: "Select warehouse" },
+  insufficient: { ar: "الرصيد غير كافٍ", en: "Insufficient balance" },
+  confirm: { ar: "تأكيد", en: "Confirm" },
+  loadItems: { ar: "تحميل الأصناف", en: "Load items" },
+  variance: { ar: "الفروقات", en: "Variance" },
+  startCount: { ar: "بدء الجرد", en: "Start count" },
+  back: { ar: "رجوع", en: "Back" },
 } as const;
 
 export type TKey = keyof typeof dict;
