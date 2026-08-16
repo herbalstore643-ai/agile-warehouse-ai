@@ -182,6 +182,26 @@ const dict = {
   variance: { ar: "الفروقات", en: "Variance" },
   startCount: { ar: "بدء الجرد", en: "Start count" },
   back: { ar: "رجوع", en: "Back" },
+  ledger: { ar: "حساب صنف", en: "Item account" },
+  openingBalance: { ar: "رصيد أول المدة", en: "Opening balance" },
+  closingBalance: { ar: "الرصيد الحالي", en: "Current balance" },
+  totalIn: { ar: "إجمالي الوارد", en: "Total in" },
+  totalOut: { ar: "إجمالي الصادر", en: "Total out" },
+  runningBalance: { ar: "الرصيد بعد الحركة", en: "Balance after" },
+  allWarehouses: { ar: "كل المخازن", en: "All warehouses" },
+  importExcel: { ar: "استيراد Excel/CSV", en: "Import Excel/CSV" },
+  importHint: {
+    ar: "ملف CSV بأعمدة: sku,barcode,name_ar,name_en,unit,min_qty,purchase_price",
+    en: "CSV columns: sku,barcode,name_ar,name_en,unit,min_qty,purchase_price",
+  },
+  importDone: { ar: "تم استيراد الأصناف", en: "Products imported" },
+  template: { ar: "تحميل نموذج", en: "Download template" },
+  editProduct: { ar: "تعديل الصنف", en: "Edit product" },
+  update: { ar: "تحديث", en: "Update" },
+  shipTransfer: { ar: "تسجيل الشحن", en: "Record shipment" },
+  receiveTransfer: { ar: "تسجيل الاستلام", en: "Record receipt" },
+  qtyDiff: { ar: "فرق الكميات", en: "Qty difference" },
+  requestTransfer: { ar: "طلب تحويل", en: "Request transfer" },
 } as const;
 
 export type TKey = keyof typeof dict;
