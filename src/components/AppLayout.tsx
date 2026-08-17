@@ -9,6 +9,9 @@ import {
   ArrowLeftRight,
   LogOut,
   Languages,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  BookOpen,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
@@ -23,6 +26,10 @@ const nav: { to: string; key: TKey; icon: typeof Warehouse }[] = [
   { to: "/dashboard", key: "dashboard", icon: LayoutDashboard },
   { to: "/warehouses", key: "warehouses", icon: Warehouse },
   { to: "/products", key: "products", icon: Package },
+  { to: "/receipts", key: "receipts", icon: ArrowDownToLine },
+  { to: "/issues", key: "issues", icon: ArrowUpFromLine },
+  { to: "/transfers", key: "transfers", icon: ArrowLeftRight },
+  { to: "/ledger", key: "ledger", icon: BookOpen },
   { to: "/movements", key: "movements", icon: ArrowLeftRight },
   { to: "/suppliers", key: "suppliers", icon: Truck },
   { to: "/reports", key: "reports", icon: FileBarChart },

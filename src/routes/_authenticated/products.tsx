@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Plus, FileSpreadsheet, Printer } from "lucide-react";
+import { Plus, FileSpreadsheet, Printer, Upload, Pencil } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -63,6 +63,9 @@ function Products() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [form, setForm] = useState(empty);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState(empty);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const { data = [] } = useQuery({
     queryKey: ["products"],
@@ -101,6 +104,68 @@ function Products() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const update = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("products")
+        .update({
+          sku: editForm.sku.trim(),
+          barcode: editForm.barcode.trim() || null,
+          name_ar: editForm.name_ar.trim(),
+          name_en: editForm.name_en.trim() || null,
+          unit: editForm.unit,
+          image_url: editForm.image_url.trim() || null,
+          min_qty: Number(editForm.min_qty) || 0,
+          max_qty: editForm.max_qty ? Number(editForm.max_qty) : null,
+          purchase_price: Number(editForm.purchase_price) || 0,
+          notes: editForm.notes || null,
+        })
+        .eq("id", editId!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("saved"));
+      setEditId(null);
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const importCsv = useMutation({
+    mutationFn: async (file: File) => {
+      const text = await file.text();
+      const lines = text.replace(/\r/g, "").split("\n").filter((l) => l.trim());
+      if (lines.length < 2) throw new Error("CSV");
+      const split = (l: string) =>
+        l.split(",").map((c) => c.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
+      const headers = split(lines[0]!).map((h) => h.toLowerCase());
+      const idx = (n: string) => headers.indexOf(n);
+      const rows = lines.slice(1).map((l) => {
+        const c = split(l);
+        const get = (n: string) => (idx(n) >= 0 ? (c[idx(n)] ?? "") : "");
+        return {
+          sku: get("sku"),
+          barcode: get("barcode") || null,
+          name_ar: get("name_ar") || get("sku"),
+          name_en: get("name_en") || null,
+          unit: get("unit") || "pcs",
+          min_qty: Number(get("min_qty")) || 0,
+          max_qty: get("max_qty") ? Number(get("max_qty")) : null,
+          purchase_price: Number(get("purchase_price")) || 0,
+        };
+      }).filter((r) => r.sku);
+      if (!rows.length) throw new Error("CSV");
+      const { error } = await supabase.from("products").upsert(rows, { onConflict: "sku" });
+      if (error) throw error;
+      return rows.length;
+    },
+    onSuccess: (n) => {
+      toast.success(`${t("importDone")} (${n})`);
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const rows = data
     .filter((p) => `${p.sku} ${p.barcode ?? ""} ${p.name_ar} ${p.name_en ?? ""}`.toLowerCase().includes(q.toLowerCase()))
     .map((p) => ({
@@ -125,6 +190,25 @@ function Products() {
         title={t("products")}
         action={
           <div className="flex gap-2">
+            {canManage && (
+              <>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) importCsv.mutate(f);
+                    e.target.value = "";
+                  }}
+                />
+                <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+                  <Upload className="h-4 w-4" />
+                  {t("importExcel")}
+                </Button>
+              </>
+            )}
             <Button variant="outline" size="sm" onClick={() => exportToExcel("products", exportRows)}>
               <FileSpreadsheet className="h-4 w-4" />
               Excel
@@ -181,6 +265,7 @@ function Products() {
               <TableHead>{t("balance")}</TableHead>
               <TableHead>{t("minQty")}</TableHead>
               <TableHead>{t("purchasePrice")}</TableHead>
+              {canManage && <TableHead />}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -202,11 +287,67 @@ function Products() {
                 </TableCell>
                 <TableCell>{Number(p.min_qty)}</TableCell>
                 <TableCell>{Number(p.purchase_price)}</TableCell>
+                {canManage && (
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditId(p.id);
+                        setEditForm({
+                          sku: p.sku,
+                          barcode: p.barcode ?? "",
+                          name_ar: p.name_ar,
+                          name_en: p.name_en ?? "",
+                          unit: p.unit,
+                          image_url: p.image_url ?? "",
+                          min_qty: String(p.min_qty),
+                          max_qty: p.max_qty == null ? "" : String(p.max_qty),
+                          purchase_price: String(p.purchase_price),
+                          notes: p.notes ?? "",
+                        });
+                      }}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      {t("edit")}
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </Card>
+
+      <Dialog open={!!editId} onOpenChange={(o) => !o && setEditId(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("edit")}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <F label={t("sku")} v={editForm.sku} on={(v) => setEditForm({ ...editForm, sku: v })} />
+            <F label={t("barcode")} v={editForm.barcode} on={(v) => setEditForm({ ...editForm, barcode: v })} />
+            <F label={t("nameAr")} v={editForm.name_ar} on={(v) => setEditForm({ ...editForm, name_ar: v })} />
+            <F label={t("nameEn")} v={editForm.name_en} on={(v) => setEditForm({ ...editForm, name_en: v })} />
+            <F label={t("unit")} v={editForm.unit} on={(v) => setEditForm({ ...editForm, unit: v })} />
+            <F label={t("imageUrl")} v={editForm.image_url} on={(v) => setEditForm({ ...editForm, image_url: v })} />
+            <F label={t("minQty")} v={editForm.min_qty} on={(v) => setEditForm({ ...editForm, min_qty: v })} />
+            <F label={t("maxQty")} v={editForm.max_qty} on={(v) => setEditForm({ ...editForm, max_qty: v })} />
+            <F
+              label={t("purchasePrice")}
+              v={editForm.purchase_price}
+              on={(v) => setEditForm({ ...editForm, purchase_price: v })}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("notes")}</Label>
+            <Textarea value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} />
+          </div>
+          <Button onClick={() => update.mutate()} disabled={update.isPending}>
+            {t("save")}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
