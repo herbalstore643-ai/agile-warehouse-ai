@@ -133,7 +133,8 @@ function Transfers() {
     for (const it of its) {
       const raw = qtyEdit[it.id];
       const value = raw === undefined ? (field === "sent_qty" ? it.requested_qty : it.sent_qty) : Number(raw);
-      const { error } = await supabase.from("transfer_items").update({ [field]: value }).eq("id", it.id);
+      const patch = (field === "sent_qty" ? { sent_qty: value } : { received_qty: value });
+      const { error } = await supabase.from("transfer_items").update(patch).eq("id", it.id);
       if (error) throw error;
     }
   }
@@ -151,7 +152,7 @@ function Transfers() {
   });
 
   const current = data.find((r) => r.id === (shipOpen ?? recvOpen));
-  const currentItems = ((current?.transfer_items ?? []) as TItem[]) ?? [];
+  const currentItems = (current?.transfer_items ?? []) as TItem[];
 
   return (
     <>
