@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -39,6 +39,16 @@ function Warehouses() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    code: "",
+    name_ar: "",
+    name_en: "",
+    location: "",
+    manager_name: "",
+    manager_phone: "",
+    is_active: true,
+  });
   const [form, setForm] = useState({
     code: "",
     name_ar: "",
@@ -75,6 +85,31 @@ function Warehouses() {
   const rows = data.filter((w) =>
     `${w.code} ${w.name_ar} ${w.name_en}`.toLowerCase().includes(q.toLowerCase()),
   );
+
+  const update = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("warehouses")
+        .update({
+          code: editForm.code.trim(),
+          name_ar: editForm.name_ar.trim(),
+          name_en: editForm.name_en.trim(),
+          location: editForm.location || null,
+          manager_name: editForm.manager_name || null,
+          manager_phone: editForm.manager_phone || null,
+          is_active: editForm.is_active,
+        })
+        .eq("id", editId!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("saved"));
+      setEditId(null);
+      qc.invalidateQueries({ queryKey: ["warehouses"] });
+      qc.invalidateQueries({ queryKey: ["wms-warehouses"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   return (
     <>
@@ -129,10 +164,59 @@ function Warehouses() {
                 {w.manager_phone && <div dir="ltr">{w.manager_phone}</div>}
                 <div>{w.is_active ? t("active") : t("inactive")}</div>
               </dl>
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => {
+                    setEditId(w.id);
+                    setEditForm({
+                      code: w.code,
+                      name_ar: w.name_ar,
+                      name_en: w.name_en,
+                      location: w.location ?? "",
+                      manager_name: w.manager_name ?? "",
+                      manager_phone: w.manager_phone ?? "",
+                      is_active: w.is_active,
+                    });
+                  }}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  {t("edit")}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <Dialog open={!!editId} onOpenChange={(o) => !o && setEditId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("editWarehouse")}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label={t("code")} value={editForm.code} onChange={(v) => setEditForm({ ...editForm, code: v })} />
+            <Field label={t("nameAr")} value={editForm.name_ar} onChange={(v) => setEditForm({ ...editForm, name_ar: v })} />
+            <Field label={t("nameEn")} value={editForm.name_en} onChange={(v) => setEditForm({ ...editForm, name_en: v })} />
+            <Field label={t("location")} value={editForm.location} onChange={(v) => setEditForm({ ...editForm, location: v })} />
+            <Field label={t("manager")} value={editForm.manager_name} onChange={(v) => setEditForm({ ...editForm, manager_name: v })} />
+            <Field label={t("phone")} value={editForm.manager_phone} onChange={(v) => setEditForm({ ...editForm, manager_phone: v })} />
+          </div>
+          <div className="flex gap-2">
+            <Button className="flex-1" onClick={() => update.mutate()} disabled={update.isPending}>
+              {t("save")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setEditForm({ ...editForm, is_active: !editForm.is_active })}
+            >
+              {editForm.is_active ? t("deactivate") : t("activate")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
