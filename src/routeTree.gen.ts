@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedCountsRouteImport } from './routes/_authenticated/counts'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedIssuesRouteImport } from './routes/_authenticated/issues'
 import { Route as AuthenticatedLedgerRouteImport } from './routes/_authenticated/ledger'
 import { Route as AuthenticatedMovementsRouteImport } from './routes/_authenticated/movements'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedReceiptsRouteImport } from './routes/_authenticated/receipts'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -31,6 +34,16 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCountsRoute = AuthenticatedCountsRouteImport.update({
+  id: '/counts',
+  path: '/counts',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -52,6 +65,12 @@ const AuthenticatedMovementsRoute = AuthenticatedMovementsRouteImport.update({
   path: '/movements',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -90,10 +109,13 @@ const AuthenticatedWarehousesRoute = AuthenticatedWarehousesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/audit': typeof AuthenticatedAuditRoute
+  '/counts': typeof AuthenticatedCountsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/issues': typeof AuthenticatedIssuesRoute
   '/ledger': typeof AuthenticatedLedgerRoute
   '/movements': typeof AuthenticatedMovementsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/receipts': typeof AuthenticatedReceiptsRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -104,10 +126,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/audit': typeof AuthenticatedAuditRoute
+  '/counts': typeof AuthenticatedCountsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/issues': typeof AuthenticatedIssuesRoute
   '/ledger': typeof AuthenticatedLedgerRoute
   '/movements': typeof AuthenticatedMovementsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/receipts': typeof AuthenticatedReceiptsRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -120,10 +145,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/counts': typeof AuthenticatedCountsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/issues': typeof AuthenticatedIssuesRoute
   '/_authenticated/ledger': typeof AuthenticatedLedgerRoute
   '/_authenticated/movements': typeof AuthenticatedMovementsRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/receipts': typeof AuthenticatedReceiptsRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
@@ -136,10 +164,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/audit'
+    | '/counts'
     | '/dashboard'
     | '/issues'
     | '/ledger'
     | '/movements'
+    | '/notifications'
     | '/products'
     | '/receipts'
     | '/reports'
@@ -150,10 +181,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/audit'
+    | '/counts'
     | '/dashboard'
     | '/issues'
     | '/ledger'
     | '/movements'
+    | '/notifications'
     | '/products'
     | '/receipts'
     | '/reports'
@@ -165,10 +199,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/audit'
+    | '/_authenticated/counts'
     | '/_authenticated/dashboard'
     | '/_authenticated/issues'
     | '/_authenticated/ledger'
     | '/_authenticated/movements'
+    | '/_authenticated/notifications'
     | '/_authenticated/products'
     | '/_authenticated/receipts'
     | '/_authenticated/reports'
@@ -199,6 +236,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/audit': {
+      id: '/_authenticated/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuthenticatedAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/counts': {
+      id: '/_authenticated/counts'
+      path: '/counts'
+      fullPath: '/counts'
+      preLoaderRoute: typeof AuthenticatedCountsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -225,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/movements'
       fullPath: '/movements'
       preLoaderRoute: typeof AuthenticatedMovementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/products': {
@@ -280,10 +338,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedCountsRoute: typeof AuthenticatedCountsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedIssuesRoute: typeof AuthenticatedIssuesRoute
   AuthenticatedLedgerRoute: typeof AuthenticatedLedgerRoute
   AuthenticatedMovementsRoute: typeof AuthenticatedMovementsRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedReceiptsRoute: typeof AuthenticatedReceiptsRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
@@ -294,10 +355,13 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedCountsRoute: AuthenticatedCountsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedIssuesRoute: AuthenticatedIssuesRoute,
   AuthenticatedLedgerRoute: AuthenticatedLedgerRoute,
   AuthenticatedMovementsRoute: AuthenticatedMovementsRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedReceiptsRoute: AuthenticatedReceiptsRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
