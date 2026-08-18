@@ -202,6 +202,22 @@ const dict = {
   receiveTransfer: { ar: "تسجيل الاستلام", en: "Record receipt" },
   qtyDiff: { ar: "فرق الكميات", en: "Qty difference" },
   requestTransfer: { ar: "طلب تحويل", en: "Request transfer" },
+  editWarehouse: { ar: "تعديل المخزن", en: "Edit warehouse" },
+  warehouseAccess: { ar: "المخازن المسموح بها", en: "Warehouse access" },
+  assignWarehouses: { ar: "ربط المستخدم بمخازن", en: "Assign warehouses" },
+  none: { ar: "لا يوجد", en: "None" },
+  markRead: { ar: "تعليم كمقروء", en: "Mark read" },
+  saveCount: { ar: "حفظ الجرد", en: "Save count" },
+  approveCount: { ar: "اعتماد الجرد", en: "Approve count" },
+  countItems: { ar: "أصناف الجرد", en: "Count items" },
+  noAuditLogs: { ar: "لا توجد سجلات", en: "No audit records" },
+  lowStockReport: { ar: "تقرير الحد الأدنى", en: "Low stock report" },
+  valueReport: { ar: "تقرير قيمة المخزون", en: "Stock value report" },
+  movementsReport: { ar: "تقرير الحركات", en: "Movements report" },
+  reportType: { ar: "نوع التقرير", en: "Report type" },
+  grandTotal: { ar: "الإجمالي العام", en: "Grand total" },
+  rowsCount: { ar: "عدد السطور", en: "Rows" },
+  downloadTemplate: { ar: "تحميل نموذج Excel", en: "Download Excel template" },
 } as const;
 
 export type TKey = keyof typeof dict;
